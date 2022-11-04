@@ -1,0 +1,48 @@
+#define IDR_MENU 10000
+#define IDM_ChooseColor 10012
+#define IDM_PenWidth 10014
+#define IDM_P1 10015
+#define IDM_P3 10016
+#define IDM_P5 10017
+#define IDM_P10 10018
+#define IDM_Draw 10001
+#define IDM_Dot 10002
+#define IDM_Figure 10010
+#define IDM_StraightLine 10003
+#define IDM_Rectangle 10004
+#define IDM_Ellipse 10005
+#define IDM_Text 10006
+#define IDM_AddText 10013
+#define IDM_Font 10011
+#define IDM_ZombieMonster 10007
+#define IDM_GreenLondon 10008
+#define IDM_Alba 10009
+IDR_MENU MENUEX
+BEGIN
+  MENUITEM "Choose color",IDM_ChooseColor
+  POPUP "Pen width",IDM_PenWidth
+  BEGIN
+    MENUITEM "1",IDM_P1
+    MENUITEM "3",IDM_P3
+    MENUITEM "5",IDM_P5
+    MENUITEM "10",IDM_P10
+  END
+  MENUITEM "Draw",IDM_Draw
+  MENUITEM "Dot",IDM_Dot
+  POPUP "Figure",IDM_Figure
+  BEGIN
+    MENUITEM "Straight Line",IDM_StraightLine,0x00000200,0x00000008
+    MENUITEM "Rectangle",IDM_Rectangle,0x00000200
+    MENUITEM "Ellipse",IDM_Ellipse,0x00000200
+  END
+  POPUP "Text",IDM_Text
+  BEGIN
+    MENUITEM "Add Text...",IDM_AddText
+    POPUP "Font",IDM_Font
+    BEGIN
+      MENUITEM "Zombie Monster",IDM_ZombieMonster,0x00000200
+      MENUITEM "Green London",IDM_GreenLondon,0x00000200
+      MENUITEM "Alba",IDM_Alba,0x00000200
+    END
+  END
+END
