@@ -1,3 +1,6 @@
 #define MANIFEST 						24
 1						MANIFEST  DISCARDABLE "2.XML"
-4000					CURSOR    DISCARDABLE "Dot normal.cur"
+4000					CURSOR    DISCARDABLE "cursors/Dot normal.cur"
+5000					ICON      DISCARDABLE "apps_folder_alt.ico"
+4001					CURSOR    DISCARDABLE "cursors/cross_il.cur"
+4002					CURSOR    DISCARDABLE "cursors/aero_pen.cur"

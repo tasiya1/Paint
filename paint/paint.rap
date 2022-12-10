@@ -45,7 +45,10 @@ Menu=1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0
 17=0,0,"$E\OllyDbg",5
 [Resource]
 1=,1,8,2.XML
-2=,4000,1,Dot normal.cur
+2=,4000,1,cursors\Dot normal.cur
+3=,5000,2,apps_folder_alt.ico
+4=,4001,1,cursors\cross_il.cur
+5=,4002,1,cursors\aero_pen.cur
 [StringTable]
 [VerInf]
 [Group]
@@ -57,10 +60,11 @@ Group=Added files,Assembly,Resources,Misc,Modules
 5=3
 6=3
 [AutoLoad]
-AutoLoad=2,1,4,5
+AutoLoad=1,2,4
 [RADebugBP]
 2=
 1=
+3=
 [Colref]
 0=00FFFFFF
 1=00FFFFFF
@@ -80,7 +84,7 @@ MilestoneOnTime=2
 MilestoneOnDate=0
 MilestoneOnDateWhen=1
 MilestoneOnDateStatus=0
-MilestoneOnDateDate=4
+MilestoneOnDateDate=10
 MilestoneOnDateTimeYear=2022
 MilestoneOnDateTimeMonth=10
 MilestoneOnDateTimeDate=28
@@ -104,15 +108,17 @@ ProductVer2Range=0
 ProductVer3Range=0
 ProductVer4Range=0
 [PTimer]
-PTimer=134687046
+PTimer=198142702
 [Collapse]
-1=
+1=11231250
 2=
+3=
 [Size]
-1=0,0,0,0,1931
+1=0,0,0,0,1308
 4=0,0,0,0
 5=0,0,0,0
-2=0,0,0,0,1728
+2=0,0,0,0,1405
+3=0,0,0,0,0
 [GroupExpand]
 GroupExpand=0,1,0,0,1,0
 [BookMark]
@@ -129,7 +135,12 @@ GroupExpand=0,1,0,0,1,0
 [BreakPoint]
 0=
 [Find]
-1="CreatePen"
-2="penw"
-3="hdc"
-4=".if"
+1="nrandom"
+2="extra_brush"
+3="SetTimer"
+4="KillTimer"
+5="x1"
+6="CreatePen"
+7="penw"
+8="hdc"
+9=".if"
