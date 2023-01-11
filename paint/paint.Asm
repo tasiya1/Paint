@@ -7,9 +7,6 @@ include gdi32.inc
 includelib gdi32.lib
 include RADbg.inc
 
-include comdlg32.inc
-includelib comdlg32.lib
-
 comment #
 4)	Реалізувати Програму Paint. Можливості: малювання, точки, прямої, прямокутника, еліпса, тексту. 
 	Вибір шрифту має здійснюватися діалоговим вікном. Реалізувати підтримку зовнішніх шрифтів.
@@ -22,7 +19,7 @@ start:
 	mov		hInstance,eax
 
     invoke InitCommonControls
-	invoke DialogBoxParam,hInstance,IDD_DIALOG1,NULL,addr DlgProc,NULL
+	invoke DialogBoxParam,hInstance,MAIN_DLG,NULL,addr DlgProc,NULL
 	invoke ExitProcess,0
 
 ;########################################################################
@@ -34,7 +31,7 @@ bitCopy proc
 
 bitCopy endp
 
-flood_Fill proc thex:DWORD,they:DWORD
+Flood_Fill proc thex:DWORD,they:DWORD
 LOCAL x1
 LOCAL y1
 
@@ -54,24 +51,24 @@ mov y1, edx
 	.endif
 	
 	invoke GetPixel,hdc_b, x1, y1
-	.if eax == fill_surface.rgbResult
+	.if eax == fill_surface
 	invoke SetPixel,hdc_b, x1, y1, pen_color.rgbResult
 	inc x1
-	invoke flood_Fill,x1, y1 
+	invoke Flood_Fill,x1, y1 
 	sub x1, 2
-	invoke flood_Fill,x1, y1
+	invoke Flood_Fill,x1, y1
 	inc x1
 	inc y1
-	invoke flood_Fill,x1, y1
+	invoke Flood_Fill,x1, y1
 	sub y1, 2
-	invoke flood_Fill,x1, y1
+	invoke Flood_Fill,x1, y1
 	;.else
 		;invoke SetPixel,hdc_b, x1, y1, brush_color.rgbResult
 	.endif
 	
 	ret
 
-flood_Fill endp
+Flood_Fill endp
 
 CircleCoords proc xc:DWORD, yc:DWORD
 
@@ -95,7 +92,7 @@ CircleCoords proc xc:DWORD, yc:DWORD
 
 CircleCoords endp
 
-extra_brush proc xc:DWORD, yc:DWORD
+Extra_brush proc xc:DWORD, yc:DWORD
 	
 	.while (curAngle < 6)
 		invoke CircleCoords, xc, yc
@@ -104,26 +101,436 @@ extra_brush proc xc:DWORD, yc:DWORD
 	
 	ret
 
-extra_brush endp
+Extra_brush endp
 
-randomnyk proc divider:DWORD
-LOCAL time_seed:SYSTEMTIME
+StarInnerFormula proc sx:DWORD, sy:DWORD, ex:DWORD, ey:DWORD, alfax:DWORD, alfay:DWORD
 	
-	invoke GetSystemTime, addr time_seed
-	lea eax, time_seed.wMilliseconds
-	mov ecx, divider
-	div ecx
-	mov eax, edx
+	fild sx
+	fiadd ex
+	fidiv two
+	fiadd sx
+	fiadd alfax
+	fistp star_coord.x
+	
+	fild sy
+	fiadd ey
+	fidiv two
+	fiadd sy
+	fiadd alfay
+	fistp star_coord.y
+	
 	ret
 
-randomnyk endp
+StarInnerFormula endp
 
+StarOuterFormula proc startpo:POINT, endpo:POINT
+	
+	
+	ret
 
-scatter proc
+StarOuterFormula endp
+
+Star proc startpo:POINT, endpo:POINT
+	
+	
+	ret
+
+Star endp
+
+SetButtonIcons proc hWin:HWND ;---------СКОРОТИТИ КОД
+
+	invoke LoadIcon, hInstance, 5101
+	mov hIcon, eax
+	invoke SendDlgItemMessage, hWin, Dropper_BTN, BM_SETIMAGE, IMAGE_ICON, hIcon
+	
+	invoke LoadIcon, hInstance, 5100
+	invoke SendDlgItemMessage, hWin, Pen_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	invoke LoadIcon, hInstance, 5102
+	invoke SendDlgItemMessage, hWin, Eraser_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	;---------СКОРОТИТИ КОД
+	
+	invoke LoadIcon, hInstance, 5103
+	invoke SendDlgItemMessage, hWin, Bucket_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	invoke LoadIcon, hInstance, 5105
+	invoke SendDlgItemMessage, hWin, Scatter_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	invoke LoadIcon, hInstance, 5104
+	invoke SendDlgItemMessage, hWin, ExtraPen_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	;---------СКОРОТИТИ КОД
+	
+	invoke LoadIcon, hInstance, 5106
+	invoke SendDlgItemMessage, hWin, Dot_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	invoke LoadIcon, hInstance, 5107
+	invoke SendDlgItemMessage, hWin, Line_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	invoke LoadIcon, hInstance, 5108
+	invoke SendDlgItemMessage, hWin, Rectangle_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	invoke LoadIcon, hInstance, 5109
+	invoke SendDlgItemMessage, hWin, Ellipse_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	;---------Настя бл№ть
+	
+	;invoke LoadIcon, hInstance, 5111
+	;invoke SendDlgItemMessage, hWin, ChooseFont_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+
+	invoke LoadIcon, hInstance, 5110
+	invoke SendDlgItemMessage, hWin, Clear_BTN, BM_SETIMAGE, IMAGE_ICON, eax
+	
+	invoke LoadIcon, hInstance, 5112
+	invoke SendDlgItemMessage, hWin, ColorChanger_BTN, BM_SETIMAGE, IMAGE_ICON, eax
 
 	ret
 
-scatter endp
+SetButtonIcons endp
+
+Mem_Alloc PROC Buf_Size:DWORD
+add Buf_Size,4
+invoke GlobalAlloc,GMEM_MOVEABLE or GMEM_ZEROINIT,Buf_Size
+push eax 
+invoke GlobalLock,eax 
+pop [eax]
+add eax,4
+	ret	
+Mem_Alloc endp
+
+Mem_Free PROC DATA:DWORD
+mov eax,DATA
+sub eax,4
+mov eax,[eax]
+push eax
+push eax
+call GlobalUnlock
+call GlobalFree
+	ret
+Mem_Free endp
+
+SaveBMP proc
+LOCAL info: BITMAPINFO
+LOCAL header: BITMAPFILEHEADER
+		
+	mov file_struct.lStructSize, sizeof OPENFILENAME ;попередньо заповнюю структуру інф про вибраний файл
+	mov file_struct.lpstrFile, offset file_name
+	mov file_struct.nMaxFile, 260
+	
+	invoke GetSaveFileName, addr file_struct
+	invoke MessageBox,0,addr file_name,0,MB_OK
+	
+	
+	
+	mov info.bmiHeader.biSize, sizeof BITMAPINFOHEADER
+	mov info.bmiHeader.biWidth, 1200
+	mov info.bmiHeader.biHeight, 800
+	mov info.bmiHeader.biPlanes, 1
+	mov info.bmiHeader.biBitCount, 24 ;не 32, тому не буде екстра 8 для прозорості
+	mov info.bmiHeader.biCompression, BI_RGB
+	mov info.bmiHeader.biSizeImage, 2880000 ;height*width*(bitsperpixel>24?4:3)
+	mov header.bfType, 'BM'
+	mov header.bfOffBits, 54 ; 14+40
+	;sizeof(BITMAPFILEHEADER) = 14
+	;sizeof(BITMAPINFOHEADER) = 40
+	
+	invoke CreateCompatibleDC, hdc_b
+	mov memdc, eax
+	
+	invoke CreateDIBSection, hdc_b, addr info,DIB_RGB_COLORS,addr pBits,0,0
+	mov section, eax
+	invoke SelectObject, memdc, section
+	invoke DeleteObject, eax
+	
+	invoke BitBlt,memdc, 0, 0, 1200, 800, hdc_b, 0, 0, SRCCOPY
+	invoke DeleteDC, memdc
+	
+	
+	;;;помилка точно десь тут!!! в записі файлу
+	invoke OpenFile, addr file_name, pBits, OF_CREATE
+	;invoke CreateFile, addr file_name, GENERIC_WRITE + GENERIC_READ,FILE_SHARE_WRITE + FILE_SHARE_READ,0,CREATE_NEW,0,0
+	
+	.if (eax == INVALID_HANDLE_VALUE)
+		ret
+	.endif
+	
+	
+	invoke WriteFile, eax, pBits, info.bmiHeader.biSizeImage,0,0
+	
+	ret
+
+SaveBMP endp
+
+InitializeTrackBar proc hWin:HWND
+LOCAL i:DWORD
+mov i, 1
+	invoke GetDlgItem, hWin, PEN_WIDTH_SCROLL
+	mov hTrack, eax
+	invoke SendMessage, hTrack, TBM_SETRANGEMAX, TRUE, 40
+	invoke SendMessage, hTrack, TBM_SETRANGEMIN, TRUE, 1
+	.while (i < 20)
+		invoke SendMessage, hTrack, TBM_SETTIC, 0, i
+		inc i
+	.endw
+	invoke SendMessage, hTrack, TBM_SETPOS, TRUE, 2
+	
+	ret
+
+InitializeTrackBar endp
+
+UpdatePen proc
+	
+;	.if (selection == 1)
+;		call ChangeColor
+;	.endif
+	
+	.if (drawingMode == SCATTER || drawingMode == GRASS)
+		invoke SendMessage, hSize, TBM_GETPOS, 0,0
+		mov particle_size, eax
+		invoke CreatePen,PS_SOLID, particle_size, pen_color.rgbResult
+		invoke SelectObject, hdc_b, eax
+		invoke DeleteObject, eax
+	.else
+		invoke SendMessage, hTrack, TBM_GETPOS, 0,0
+		mov penwi, eax
+		invoke CreatePen,PS_SOLID, penwi, pen_color.rgbResult
+		invoke SelectObject, hdc_b, eax
+		invoke DeleteObject, eax
+	.endif
+	
+	invoke CreateSolidBrush, brush_color.rgbResult
+	invoke SelectObject, hdc_b, eax
+	invoke DeleteObject, eax
+	
+	ret
+UpdatePen endp
+
+ChangeColor proc
+	
+;	xor edx, edx
+;	mov eax, color_changing_counter
+;	mov ecx, 20
+;	div ecx		
+;		.if (edx == 0)
+;			.if (increment_vector == 0)
+;				mov increment_vector, 1
+;			.else
+;				mov increment_vector, 0
+;			.endif
+;		.endif
+;####################################################### almost working version!!
+	
+;	.if (color_changing_counter > 20)
+;		mov increment_vector, 0
+;	.elseif (color_changing_counter < 1)
+;		mov increment_vector, 1
+;	.endif
+;	
+;	.if (increment_vector == 0)
+;		inc color_changing_counter
+;	
+;		add pen_color.rgbResult, 1
+;		add brush_color.rgbResult, 1
+;	.else
+;		dec color_changing_counter
+;	
+;		sub pen_color.rgbResult, 1
+;		sub brush_color.rgbResult, 1
+;	.endif
+	
+	;#######################################
+	
+	add pen_color.rgbResult, 1
+	add brush_color.rgbResult, 1
+	
+	ret
+
+ChangeColor endp
+
+Scatter proc x:DWORD, y:DWORD
+LOCAL lcx, lcy:DWORD
+	call UpdatePen
+	
+	mov lcx, 0
+	mov edi, x
+	;mov lcx, eax
+	mov esi, y
+	xor ebx, ebx
+	mov ebx, particle_density
+	
+	.while (lcx < ebx)
+	
+		mov x, edi
+		mov y, esi
+		sub x, 45
+		sub y, 45
+		invoke nrandom,90
+		add x, eax
+		invoke nrandom,90
+		add y, eax
+		;invoke MoveToEx, hdc_b, x, y, 0
+		invoke LineTo, hdc_b, x, y
+		
+		mov x, edi
+		mov y, esi
+		sub x, 30
+		sub y, 30
+		invoke nrandom,60
+		add x, eax
+		invoke nrandom,60
+		add y, eax
+		invoke MoveToEx, hdc_b, x, y, 0
+		invoke LineTo, hdc_b, x, y
+		
+		sub x, 10
+		sub y, 10
+		invoke nrandom,20
+		add x, eax
+		invoke nrandom,20
+		add y, eax
+		invoke MoveToEx, hdc_b, x, y, 0
+		invoke LineTo, hdc_b, x, y
+		inc lcx
+	.endw
+	call UpdatePen
+	ret
+
+Scatter endp
+
+Grass proc x:DWORD, y:DWORD
+LOCAL lcx, lcy:DWORD
+	call UpdatePen
+	
+	mov lcx, 0
+	mov edi, x
+	;mov lcx, eax
+	mov esi, y
+	xor ebx, ebx
+	mov ebx, particle_density
+	
+	.while (lcx < ebx)
+	
+		mov x, edi
+		mov y, esi
+		sub x, 45
+		sub y, 45
+		invoke nrandom,90
+		add x, eax
+		invoke nrandom,90
+		add y, eax
+		invoke MoveToEx, hdc_b, x, y, 0
+		invoke LineTo, hdc_b, x, y
+		mov x, edi
+		mov y, esi
+		sub x, 30
+		sub y, 30
+		invoke nrandom,60
+		add x, eax
+		invoke nrandom,60
+		add y, eax
+		;invoke MoveToEx, hdc_b, x, y, 0
+		invoke LineTo, hdc_b, x, y
+		sub x, 10
+		sub y, 10
+		invoke nrandom,20
+		add x, eax
+		invoke nrandom,20
+		add y, eax
+		;invoke MoveToEx, hdc_b, x, y, 0
+		invoke LineTo, hdc_b, x, y
+		inc lcx
+	.endw
+	call UpdatePen
+	ret
+
+Grass endp
+
+InitializeSettings proc hWin:HWND
+LOCAL i:DWORD
+
+	mov i, 1
+	invoke GetDlgItem, hWin, PARTICLE_DENSITY_TRB
+	mov hDensity, eax
+	invoke SendMessage, hDensity, TBM_SETRANGEMAX, TRUE, 40
+	invoke SendMessage, hDensity, TBM_SETRANGEMIN, TRUE, 1
+	.while (i < 40)
+		invoke SendMessage, hDensity, TBM_SETTIC, 0, i
+		inc i
+	.endw
+	
+	mov i, 1
+	invoke GetDlgItem, hWin, PARTICLE_SIZE_TRB
+	mov hSize, eax
+	invoke SendMessage, hSize, TBM_SETRANGEMAX, TRUE, 20
+	invoke SendMessage, hSize, TBM_SETRANGEMIN, TRUE, 1
+	.while (i < 20)
+		invoke SendMessage, hSize, TBM_SETTIC, 0, i
+		inc i
+	.endw
+	
+	ret
+
+InitializeSettings endp
+
+UpdateSettings proc
+	
+	invoke SendMessage, hDensity, TBM_GETPOS, 0,0
+	mov particle_density, eax
+	
+	invoke SendMessage, hSize, TBM_GETPOS, 0,0
+	mov particle_size, eax
+	
+	ret
+
+UpdateSettings endp
+
+SettingsProc proc hWin:HWND,uMsg:UINT,wParam:WPARAM,lParam:LPARAM
+LOCAL i:DWORD
+		mov		eax,uMsg
+	.if eax==WM_INITDIALOG
+			mov i, 1
+	invoke GetDlgItem, hWin, PARTICLE_DENSITY_TRB
+	mov hDensity, eax
+	invoke SendMessage, hDensity, TBM_SETRANGEMAX, TRUE, 40
+	invoke SendMessage, hDensity, TBM_SETRANGEMIN, TRUE, 1
+	.while (i < 40)
+		invoke SendMessage, hDensity, TBM_SETTIC, 0, i
+		inc i
+	.endw
+	invoke SendMessage, hDensity, TBM_SETPOS, TRUE, particle_density
+	
+	mov i, 1
+	invoke GetDlgItem, hWin, PARTICLE_SIZE_TRB
+	mov hSize, eax
+	invoke SendMessage, hSize, TBM_SETRANGEMAX, TRUE, 20
+	invoke SendMessage, hSize, TBM_SETRANGEMIN, TRUE, 1
+	.while (i < 20)
+		invoke SendMessage, hSize, TBM_SETTIC, 0, i
+		inc i
+	.endw
+	invoke SendMessage, hSize, TBM_SETPOS, TRUE, particle_size
+
+	
+	.elseif eax==WM_COMMAND	
+		.if wParam == Apply_BTN
+			call UpdateSettings
+			jmp @F
+		.elseif wParam == Cancel_BTN
+			jmp @F
+		.endif
+		
+	.elseif eax==WM_CLOSE
+		@@:
+		invoke EndDialog,hWin,0
+	.else
+		mov		eax,FALSE
+		ret
+	.endif
+	
+	mov		eax,TRUE
+	ret
+SettingsProc endp
 
 DlgProc proc hWin:HWND,uMsg:UINT,wParam:WPARAM,lParam:LPARAM
 ;LOCAL y,x, col:dword
@@ -137,10 +544,15 @@ DlgProc proc hWin:HWND,uMsg:UINT,wParam:WPARAM,lParam:LPARAM
 	
 	mov eax, hWin
 	mov hW, eax
-
-	invoke LoadIcon,hInstance, IDI_APPLICATION
-	mov hBut1, eax
-
+	
+	invoke GetDlgItem, hWin, IDC_IMG1
+	mov hLogo, eax
+	
+	invoke LoadBitmap, hInstance, 5001
+	invoke SendMessage, hLogo, STM_SETIMAGE, IMAGE_BITMAP, eax
+	
+	invoke InitializeTrackBar, hWin
+	
 	;сумісний графічний контекст (бітмап для компіювання)
 	invoke CreateCompatibleDC, hdc0
 	mov hdc_b, eax
@@ -153,8 +565,8 @@ DlgProc proc hWin:HWND,uMsg:UINT,wParam:WPARAM,lParam:LPARAM
 	
 	invoke LoadCursor, hInstance, 4002
 	mov hCursor, eax
-	invoke SendDlgItemMessage, hInstance, IDD_DIALOG1, WM_SETCURSOR, hWin, NULL
-	
+	;invoke SendDlgItemMessage, hInstance, IDD_DIALOG1, WM_SETCURSOR, hWin, NULL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	;ініціалізація структури для вибору кольору
 	mov pen_color.lStructSize, sizeof CHOOSECOLOR
 	mov pen_color.lpCustColors, offset colrBuf ;буфер на кастомні кольори
@@ -163,125 +575,115 @@ DlgProc proc hWin:HWND,uMsg:UINT,wParam:WPARAM,lParam:LPARAM
 	mov brush_color.lStructSize, sizeof CHOOSECOLOR
 	mov brush_color.lpCustColors, offset colrBuf ;буфер на кастомні кольори
 	mov brush_color.Flags, CC_FULLOPEN + CC_RGBINIT	;щоб повний вигляд палітри був одразу
+
+	invoke SetButtonIcons, hWin	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	
+	mov choose_font.lStructSize, sizeof CHOOSEFONT
+	;mov choose_font.hDC, hdc_b
+	mov choose_font.iPointSize, 10
+	mov choose_font.Flags, CF_EFFECTS
+	mov choose_font.nFontType, REGULAR_FONTTYPE	
+	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
 	;set icon
 	invoke LoadIcon, hInstance, 5000
-	invoke SendMessage,hWin,STM_SETIMAGE,IMAGE_ICON,eax
+	;invoke SendMessage,hWin,STM_SETIMAGE,IMAGE_ICON,eax
+	invoke SendDlgItemMessage, hWin, 101, BM_SETIMAGE, IMAGE_ICON, eax
 	
-	invoke CreatePen,PS_SOLID, penwi, pen_color.rgbResult
-	invoke SelectObject, hdc_b, eax
+	call UpdatePen
 	
 	.elseif eax == WM_SETCURSOR
 		invoke SetCursor,hCursor
-		ret
-	
+		
 	.elseif eax==WM_COMMAND
 		
-		.if wParam == IDM_Clear ;очищення екрана
-			invoke Rectangle, hdc_b, -30, -30, 1230, 830
-		
+		.if wParam == Clear_BTN ;очищення екрана
+			invoke MessageBox, hWin, addr warning_text, addr warning, MB_YESNO
+			.if eax == IDYES
+				invoke Rectangle, hdc_b, -30, -30, 1230, 830
+			.endif
+			
+		.elseif wParam == Save_BTN
+			invoke SaveBMP
+			
+		.elseif wParam == Settings_BTN
+			invoke DialogBoxParam,hInstance,SETTINGS_DLG,hWin,addr SettingsProc,NULL
+			
+		.elseif wParam == ColorChanger_BTN
+			.if (selection == 0)
+				mov selection, 1
+				invoke SetDlgItemText, hWin, ColorChangerStatus, addr selected
+			.else
+				mov selection, 0
+				invoke SetDlgItemText, hWin, ColorChangerStatus, addr deselected
+			.endif
+			
+			
 	   	.elseif wParam == Color1_BTN
 	   		invoke ChooseColor, addr pen_color
-	   		invoke CreatePen,PS_SOLID, penwi, pen_color.rgbResult
-			invoke SelectObject, hdc_b, eax
+	   		.if (eax != 0)
+	   			mov eax, pen_color.rgbResult
+	   			mov first_pen_color, eax
+	   		.endif
+	   		call UpdatePen
 		.elseif wParam == Color2_BTN
 	   		invoke ChooseColor, addr brush_color
+	   		.if (eax != 0)
+	   			mov eax, brush_color.rgbResult
+	   			mov first_brush_color, eax
+	   		.endif
 	   		invoke CreateSolidBrush,brush_color.rgbResult
 			invoke SelectObject, hdc_b, eax
+			invoke DeleteObject, eax
 		
 		.elseif wParam == Dropper_BTN
 			mov drawingMode, DROPPER
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr dropper_text
 		;встановлення модів малювання, від яких залежать дії при натисненні мишки	
 		.elseif wParam == Bucket_BTN
 			mov drawingMode, BUCKET
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr bucket_text
 	   	.elseif wParam == Pen_BTN
 			mov drawingMode, DRAW
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr pen_text		
 		.elseif wParam == Eraser_BTN
-			invoke CreatePen,PS_SOLID, penwi, brush_color.rgbResult
-			invoke SelectObject, hdc_b, eax
+			call UpdatePen
 			mov drawingMode, DRAW
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr eraser_text
 		.elseif wParam == Scatter_BTN
 			mov drawingMode, SCATTER
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr scatter_text
+		.elseif wParam == Grass_BTN
+			mov drawingMode, GRASS
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr grass_text
       	.elseif wParam == ExtraPen_BTN
       		mov drawingMode, EXTRAPEN
+      		invoke SetDlgItemText, hWin, SELECTED_TOOL, addr extrapen_text
       	.elseif wParam == Dot_BTN ; "Dot"
       		mov drawingMode, DOT
+      		invoke SetDlgItemText, hWin, SELECTED_TOOL, addr dot_text
       	.elseif wParam == Line_BTN ; "Straight Line"
 			mov drawingMode, LINE
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr line_text
       	.elseif wParam == Rectangle_BTN ; "Rectangle"
 			mov drawingMode, RECTANG
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr rectangle_text
       	.elseif wParam == Ellipse_BTN ; "Ellipse"
 			mov drawingMode, ELLIPSE
-			
-		.elseif wParam == IDM_P1
-			mov penwi, 1
-			invoke CreatePen,PS_SOLID, penwi, pen_color.rgbResult
-			invoke SelectObject, hdc_b, eax
-			
-		.elseif wParam == IDM_P3
-			mov penwi, 3
-			invoke CreatePen,PS_SOLID, penwi, pen_color.rgbResult
-			invoke SelectObject, hdc_b, eax
-		.elseif wParam == IDM_P5
-			mov penwi, 5
-			invoke CreatePen,PS_SOLID, penwi, pen_color.rgbResult
-			invoke SelectObject, hdc_b, eax
-		.elseif wParam == IDM_P10
-			mov penwi, 10
-			invoke CreatePen,PS_SOLID, penwi, pen_color.rgbResult
-			invoke SelectObject, hdc_b, eax
-      	.elseif wParam == IDM_AddText
-      		invoke DialogBoxParam,hInstance,IDD_DLG1,NULL,addr FontWindowProc,NULL
-			
-      	.elseif wParam == IDM_Alba ; "Alba"
-
-      		invoke AddFontResource,addr font3
-			invoke GetDeviceCaps,hdc_b,LOGPIXELSY ;кількість пікселів на логічний дюйм
-			invoke MulDiv,40,eax,72 ;для знаходження логічної висоти шрифту
-			neg eax ; -eax
-			invoke CreateFont, eax, 40, 0, 0, 500, 0, 0 , 0, DEFAULT_CHARSET,\ 
- 	 		OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,DEFAULT_PITCH,addr f3
- 	 		invoke SelectObject,hdc_b,eax ;аpply новий шрифт
- 	 		invoke DeleteObject, eax
-			invoke SetTextColor,hdc_b,pen_color.rgbResult
-			invoke SetBkMode,hdc_b,TRANSPARENT ;фон тексту
-			
-      	.elseif wParam == IDM_ZombieMonster ; 
-      	
-      		invoke AddFontResource,addr font1
-			invoke GetDeviceCaps,hdc_b,LOGPIXELSY ;кількість пікселів на логічний дюйм
-			invoke MulDiv,50,eax,72 ;для знаходження логічної висоти шрифту
-			neg eax ; -eax
-			invoke CreateFont, eax, 50, 0, 0, 300, 0, 0 , 0, DEFAULT_CHARSET,\ 
- 	 		OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,DEFAULT_PITCH,addr f1
- 	 		invoke SelectObject,hdc_b,eax ;аpply новий шрифт
- 	 		invoke DeleteObject, eax
-			invoke SetTextColor,hdc_b,pen_color.rgbResult
-			invoke SetBkMode,hdc_b,TRANSPARENT ;фон тексту
-      	
-      	.elseif wParam == IDM_GreenLondon ; 
-      	
-      		invoke AddFontResource,addr font2
-			invoke GetDeviceCaps,hdc_b,LOGPIXELSY ;кількість пікселів на логічний дюйм
-			invoke MulDiv,30,eax,72 ;для знаходження логічної висоти шрифту
-			neg eax ; -eax
-			invoke CreateFont, eax, 30, 0, 0, 300, 0, 0 , 0, DEFAULT_CHARSET,\ 
- 	 		OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,DEFAULT_PITCH,addr f2
- 	 		invoke SelectObject,hdc_b,eax ;аpply новий шрифт
- 	 		invoke DeleteObject, eax
-			invoke SetTextColor,hdc_b,pen_color.rgbResult
-			invoke SetBkMode,hdc_b,TRANSPARENT ;фон тексту
-      	
+			invoke SetDlgItemText, hWin, SELECTED_TOOL, addr ellipse_text
       	.endif
 ;	
 	.elseif eax == WM_LBUTTONDBLCLK
 		invoke GetCursorPos, addr startpos
 		invoke ScreenToClient, hWin, addr startpos
-		invoke DialogBoxParam,hInstance,IDD_DLG1,NULL,addr FontWindowProc,NULL
+	;	invoke DialogBoxParam,hInstance,IDD_DLG1,NULL,addr FontWindowProc,NULL
 	;.elseif eax == WM_SETICON
 		;invoke 
 	.elseif eax == WM_LBUTTONDOWN
 		;mov draws, 1; змінна, яка дає дозвіл на малювання, після того як затиснута клавіша і до її відпускання
+		call UpdatePen
 		
 		invoke GetCursorPos, addr startpos ;коли малюємо фігуру то замап'ятовуємо координати її початку
 		invoke ScreenToClient, hWin, addr startpos
@@ -290,30 +692,27 @@ DlgProc proc hWin:HWND,uMsg:UINT,wParam:WPARAM,lParam:LPARAM
 		
 		.if drawingMode == BUCKET
 			invoke GetPixel, hdc_b, startpos.x, startpos.y ;визначаю колір стартової точки
-			mov fill_surface.rgbResult, eax
-			invoke flood_Fill, startpos.x, startpos.y ;далі, буде відбуватися філл до межі поверхні заповнення(за кольором поверхні, визначеному вище)
-		
+			mov fill_surface, eax
+			invoke Flood_Fill, startpos.x, startpos.y ;далі, буде відбуватися філл до межі поверхні заповнення(за кольором поверхні, визначеному вище)
+			
 		.elseif drawingMode == EXTRAPEN
 			;invoke extra_brush, startpos.x, startpos.y
-		.elseif drawingMode == SCATTER
-			invoke scatter
+
 		.elseif drawingMode == DROPPER
 			invoke GetCursorPos, addr startpos
-			invoke GetPixel, hdc_b, startpos.x, startpos.y
-			;mov usercolor.rgbResult, eax
-			invoke CreatePen,PS_SOLID, penwi, eax
-			invoke SelectObject, hdc_b, eax
+			invoke GetPixel, hdc0, startpos.x, startpos.y
+			mov pen_color.rgbResult, eax
+			call UpdatePen
+			
 		.endif
 
 	.elseif eax == WM_LBUTTONUP
 		invoke GetCursorPos, addr endpos
 		invoke ScreenToClient, hWin, addr endpos
-
-		;.if drawingMode == DRAW
-			;mov draws, 0	
-
+		
 		.if drawingMode == DOT
-			invoke LineTo, hdc_b, startpos.x, startpos.y
+			invoke MoveToEx, hdc_b, endpos.x, endpos.y, NULL
+			invoke LineTo, hdc_b, endpos.x, endpos.y
 				
 		.elseif drawingMode == LINE
 			invoke LineTo, hdc_b, endpos.x, endpos.y
@@ -328,6 +727,10 @@ DlgProc proc hWin:HWND,uMsg:UINT,wParam:WPARAM,lParam:LPARAM
 ;
 
 	.elseif eax == WM_MOUSEMOVE
+	.if (selection == 1)
+				call ChangeColor
+				call UpdatePen
+			.endif
 		.if wParam == MK_LBUTTON ;якщо затиснута ліва кнопка миші
 			;y - верхня частина пааметру, x - нижня
 			mov ecx,lParam ;у зберігатиметься в есх
@@ -335,38 +738,43 @@ DlgProc proc hWin:HWND,uMsg:UINT,wParam:WPARAM,lParam:LPARAM
 			shr ecx,16 ;зсуваємо щоб отримати чистий у
 			shl eax, 16 ;те ж саме для х
 			shr eax, 16
-			mov startpos.x, eax
-			mov startpos.y, ecx
 			
 			.if drawingMode == DRAW ;якщо зараз увімкнений режим звичайного малювання
-				invoke LineTo, hdc_b, startpos.x, startpos.y
+				mov startpos.x, eax
+				mov startpos.y, ecx
 			
+				invoke LineTo, hdc_b, startpos.x, startpos.y	
+			.elseif drawingMode == SCATTER
+				invoke Scatter, eax, ecx
+			.elseif drawingMode == GRASS
+				invoke Grass, eax, ecx
 			.elseif drawingMode == EXTRAPEN
-
+				mov startpos.x, eax
+				mov startpos.y, ecx
+				
+				mov ebx, penwi
 				mov eax, startpos.x
 				mov startpoint.x, eax
-				sub startpoint.x, 20
+				sub startpoint.x, ebx
 				
 				mov eax, startpos.y
 				mov startpoint.y, eax
-				sub startpoint.y, 20
+				sub startpoint.y, ebx
 				
 				mov eax, startpos.x
 				mov endpoint.x, eax
-				add endpoint.x, 20
+				add endpoint.x, ebx
 				
 				mov eax, startpos.y
 				mov endpoint.y, eax
-				add endpoint.y, 20
+				add endpoint.y, ebx
 				invoke Ellipse,hdc_b,startpoint.x, startpoint.y, endpoint.x, endpoint.y
-			.elseif drawingMode == SCATTER
-				
 			.endif
 			
 		.endif
 	
 	.elseif eax==WM_CLOSE
-	
+
 		invoke KillTimer, hWin, 7000
 		invoke DeleteDC, hdc_b
 		invoke ReleaseDC, hWin, hdc
