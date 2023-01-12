@@ -1,0 +1,74 @@
+#define IDR_MENU 10000
+#define IDM_Color 10023
+#define IDM_Color1 10012
+#define IDM_Color2 10025
+#define IDM_Dropper 10022
+#define IDM_PenWidth 10014
+#define IDM_P1 10015
+#define IDM_P3 10016
+#define IDM_P5 10017
+#define IDM_P10 10018
+#define IDM_Tools 10024
+#define IDM_Pen 10001
+#define IDM_Eraser 10028
+#define IDM_Bucket 10021
+#define IDM_Scatter 10027
+#define IDM_ExtraPen 10026
+#define IDM_Shapes 10010
+#define IDM_Dot 10002
+#define IDM_StraightLine 10003
+#define IDM_Rectangle 10004
+#define IDM_Ellipse 10005
+#define IDM_Text 10006
+#define IDM_AddText 10013
+#define IDM_Font 10011
+#define IDM_ZombieMonster 10007
+#define IDM_GreenLondon 10008
+#define IDM_Alba 10009
+#define IDM_Canvas 10019
+#define IDM_Clear 10020
+IDR_MENU MENUEX
+BEGIN
+  POPUP "Color",IDM_Color
+  BEGIN
+    MENUITEM "Color 1",IDM_Color1
+    MENUITEM "Color 2",IDM_Color2
+    MENUITEM "Dropper",IDM_Dropper
+  END
+  POPUP "Pen width",IDM_PenWidth
+  BEGIN
+    MENUITEM "1",IDM_P1
+    MENUITEM "3",IDM_P3
+    MENUITEM "5",IDM_P5
+    MENUITEM "10",IDM_P10
+  END
+  POPUP "Tools",IDM_Tools
+  BEGIN
+    MENUITEM "Pen",IDM_Pen
+    MENUITEM "Eraser",IDM_Eraser
+    MENUITEM "Bucket",IDM_Bucket
+    MENUITEM "Scatter",IDM_Scatter
+    MENUITEM "Extra pen",IDM_ExtraPen
+  END
+  POPUP "Shapes",IDM_Shapes
+  BEGIN
+    MENUITEM "Dot",IDM_Dot
+    MENUITEM "Straight Line",IDM_StraightLine,0x00000200,0x00000008
+    MENUITEM "Rectangle",IDM_Rectangle,0x00000200
+    MENUITEM "Ellipse",IDM_Ellipse,0x00000200
+  END
+  POPUP "Text",IDM_Text
+  BEGIN
+    MENUITEM "Add Text...",IDM_AddText
+    POPUP "Font",IDM_Font
+    BEGIN
+      MENUITEM "Zombie Monster",IDM_ZombieMonster,0x00000200
+      MENUITEM "Green London",IDM_GreenLondon,0x00000200
+      MENUITEM "Alba",IDM_Alba,0x00000200
+    END
+  END
+  POPUP "Canvas",IDM_Canvas
+  BEGIN
+    MENUITEM "Clear",IDM_Clear
+  END
+END
