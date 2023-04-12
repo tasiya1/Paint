@@ -1,5 +1,0 @@
-#include "Res/settingsDlg.rc"
-#include "Res/drawMnu.rc"
-#include "Res/chooseFontDlg.rc"
-#include "Res/paintRes.rc"
-#include "Res/paintDlg.rc"
